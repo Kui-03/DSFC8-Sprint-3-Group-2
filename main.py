@@ -1,12 +1,12 @@
 import streamlit as st
 
-from st_pages import conclusion, introduction, objective, time_series
+from st_pages import conclusion, introduction, methodology, time_series
 from st_pages.recommender import Recommender_Page
 
 def initialize():
     PAGES = [
         'Introduction',
-        'Objective',
+        'Methodology',
         'Time Series Analysis and Forecasting',
         'Recommendation Engine',
         'Conclusion and Recommendations'
@@ -16,8 +16,8 @@ def initialize():
 
     if page == 'Introduction':
         introduction.display()
-    elif page == 'Objective':
-        objective.display()
+    elif page == 'Methodology':
+        methodology.display()
     elif page == 'Time Series Analysis and Forecasting':
         time_series.display()
     elif page == 'Recommendation Engine':

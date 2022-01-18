@@ -20,7 +20,7 @@ import math
 DATA_csv = "db/data/"
 
 # Query tracks from CSV file
-CSV = ["abra.csv", "top200.csv"]
+CSV = ["abra.csv", "top200-genres.csv"]
 RAW = ["top200.csv"]
 ART = ["album_art.csv", "artist_art.csv"]
 

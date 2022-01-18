@@ -26,7 +26,7 @@ of streams of hip-hop songs in that Top 200. Below is the time series generated.
     """)
 
     data = pd.read_csv(
-        os.getcwd()+'\\data\\daily_charts\\hiphop_daily_charts.csv'
+        os.getcwd()+'/data/daily_charts/hiphop_daily_charts.csv'
     )
 
     data['date'] = pd.to_datetime(data['date'])
@@ -55,19 +55,19 @@ Let's check the data from the 15th of every month from November 2019 to January 
     """)
 
     nov = pd.read_csv(
-        os.getcwd()+'\\data\\daily_charts\\hiphop_playlist_nov_15_2019.csv'
+        os.getcwd()+'/data/daily_charts/hiphop_playlist_nov_15_2019.csv'
     )[['date', 'position', 'track_name', 'artist', 'streams']]
 
     dec = pd.read_csv(
-        os.getcwd()+'\\data\\daily_charts\\hiphop_playlist_dec_15_2019.csv'
+        os.getcwd()+'/data/daily_charts/hiphop_playlist_dec_15_2019.csv'
     )[['date', 'position', 'track_name', 'artist', 'streams']]
 
     jan = pd.read_csv(
-        os.getcwd()+'\\data\\daily_charts\\hiphop_playlist_jan_15_2020.csv'
+        os.getcwd()+'/data/daily_charts/hiphop_playlist_jan_15_2020.csv'
     )[['date', 'position', 'track_name', 'artist', 'streams']]
 
     feb = pd.read_csv(
-        os.getcwd()+'\\data\\daily_charts\\hiphop_playlist_feb_15_2020.csv'
+        os.getcwd()+'/data/daily_charts/hiphop_playlist_feb_15_2020.csv'
     )[['date', 'position', 'track_name', 'artist', 'streams']]
 
     st.write("Table 1a: Hiphop activity on November 15, 2019")
@@ -101,7 +101,7 @@ The data found in december 31, 2020 is shown as follows:
     """)
 
     dec_31 = pd.read_csv(
-        os.getcwd()+'\\data\\daily_charts\\hiphop_playlist_dec_31_2020.csv'
+        os.getcwd()+'/data/daily_charts/hiphop_playlist_dec_31_2020.csv'
     )[['date', 'position', 'track_name', 'artist', 'streams']]
 
     st.table(dec_31)
@@ -132,9 +132,9 @@ We created 3 Models that would help get us this insight:
 First, let's check how their forecasts compare to true values.
     """)
 
-    arima_valid = Image.open(os.getcwd()+'\\assets\\images\\ARIMA_validation.jpg')
-    exponential_valid = Image.open(os.getcwd()+'\\assets\\images\\Expo_Validation.jpg')
-    ml_valid = Image.open(os.getcwd()+'\\assets\\images\\ML_Validation.jpg')
+    arima_valid = Image.open(os.getcwd()+'/Assets/Images/ARIMA_validation.jpg')
+    exponential_valid = Image.open(os.getcwd()+'/Assets/Images/Expo_Validation.jpg')
+    ml_valid = Image.open(os.getcwd()+'/Assets/Images/ML_Validation.jpg')
 
     st.image(arima_valid, caption="ARIMA Validation Performance")
     st.image(exponential_valid, caption="Exponential Smoothing Validation Performance")
@@ -148,7 +148,7 @@ on the ML Model. Perhaps more engineering is required for the ML Model to learn 
 Using the XGBoost Model, we are able to forecast where hiphop will be going for the next month
     """)
 
-    ml_fore = Image.open(os.getcwd()+'\\assets\\images\\ML_Forecast.jpg')
+    ml_fore = Image.open(os.getcwd()+'/Assets/Images/ML_Forecast.jpg')
 
     st.image(ml_fore, caption="Hiphop Number of Streams forecast for the next month")
 
