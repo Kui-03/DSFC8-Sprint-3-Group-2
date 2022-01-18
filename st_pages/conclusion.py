@@ -8,10 +8,10 @@ def display():
     st.write("")
     st.subheader("Conclusion")
     st.write("")
-    conclusion = Image.open("Assets\Images\Conclusion.PNG")
+    conclusion = Image.open("Assets\Images\Conclusion.png")
     st.image(conclusion)
     
     st.write("")
     st.subheader("Recommendations")
-    recommendations = Image.open("Assets\Images\Recommendations.PNG")
+    recommendations = Image.open("Assets\Images\Recommendations.png")
     st.image(recommendations)
