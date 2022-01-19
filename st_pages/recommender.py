@@ -19,6 +19,7 @@ import math
 
 # Directory
 DATA_csv = "db/data/"
+DATA_png = "db/png/"
 
 # Query tracks from CSV file
 CSV = ["abra.csv", "top200-genres.csv"]
@@ -105,9 +106,13 @@ class Recommender_Page():
         for i in range(3):
             for j in range(3):
                 col_name = seed_service.feature_cols[i*3+j]
-                sns.histplot(data = raw_df[col_name], ax = axs[i,j], kde=True)
+                get = raw_df[col_name]
+                x = sns.histplot(data = get, ax = axs[i,j], kde=True, bins=10)
+                
                 axs[i,j].set_title(col_name)
                 axs[i,j].set(xlabel='')
+
+                del get, x
 
         plt.subplots_adjust(
                         #left=0.9,
@@ -121,9 +126,10 @@ class Recommender_Page():
         st.markdown(" - When producing a new track, the following audio features like *tempo* can provide ideas as a baseline for beats design.")
         st.markdown(" - These data were extracted from the top recommendation results.")
         st.markdown("### Recommender Top Tracks: ")
-        st.write(df.drop("track_id", axis=1).reset_index(drop=True))
+        
+        st.write(df.drop(["track_id"], axis=1).reset_index(drop=True))
 
-        del df, raw_df, fig, axs
+        del df, raw_df, fig, axs, seed_service
 
 
     # Display Track Info
