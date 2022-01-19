@@ -28,6 +28,7 @@ class Recommender_Page():
     def __init__(self):
         self.start()
 
+    @st.cache
     def start(self):
         # Display Intro
         self.display_intro()
@@ -90,6 +91,7 @@ class Recommender_Page():
         st.markdown(" - Samples could be increased to gain better results.")
         st.markdown("## Select Track")
 
+    @st.cache
     # Display Recommendation Info
     def display_recom_info(self, df):
         seed_service = SeedService()
@@ -175,6 +177,7 @@ class Recommender_Page():
 
 
     # Display Track Info
+    @st.cache
     def display_track_info(self, track_id):
         seed_service = SeedService()
         seed_service.get_seed([track_id])
@@ -208,7 +211,7 @@ class Recommender_Page():
         ax = sns.barplot(data=stats)
         st.pyplot(fig)
         
-        
+    @st.cache
     def generate_by_track_id(self, track_id, items=20, method = "cosine_dist"):
         # Create SeedService
         seed_service = SeedService()
