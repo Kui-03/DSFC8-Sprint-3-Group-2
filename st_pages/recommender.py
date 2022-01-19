@@ -79,6 +79,7 @@ class Recommender_Page():
             st.markdown(" - Different distance metrics also yield different outcomes!")
             st.markdown("### Who do you think should make a comeback next?")
 
+        del df, df_artist, recom_df
         return
 
     # Intro txt
