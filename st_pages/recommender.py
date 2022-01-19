@@ -27,7 +27,6 @@ ART = ["album_art.csv", "artist_art.csv"]
 
 class Recommender_Page():
     def __init__(self):
-        st.experimental_singleton.clear()
         self.start()
 
     #st.cache(suppress_st_warning=True)
@@ -70,6 +69,11 @@ class Recommender_Page():
         # Obtain recommendations
         status_msg = ""
         if st.button("Submit"):
+            # Clear cache
+            self.display_recom_info.clear()
+            self.generate_by_track_id.clear()
+            
+            st.experimental_singleton.clear()
             status_msg = "Generating recommendations for {0} - {1}..".format(track_name, artist_name)
             st.text(status_msg)
             recom_df = self.generate_by_track_id(track_id, items, method).recommendations
@@ -212,7 +216,8 @@ class Recommender_Page():
         ax = sns.barplot(data=stats)
         st.pyplot(fig)
         
-    def generate_by_track_id(self, track_id, items=20, method = "cosine_dist"):
+    @st.experimental_singleton(suppress_st_warning=True)
+    def generate_by_track_id(_self, track_id, items=20, method = "cosine_dist"):
         # Create SeedService
         seed_service = SeedService()
         # Create RecommenderService
