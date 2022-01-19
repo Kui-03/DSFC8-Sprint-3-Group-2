@@ -26,30 +26,28 @@ class SeedService():
         self.load_scalers()
         self.classifier = Classifier()
         self.get_seed()
-        st.experimental_memo.clear()
 
     # Load Scalers
-    @st.experimental_memo(suppress_st_warning=True)
-    def load_scalers(_self):
+    def load_scalers(self):
         getfeature_cols = ["tempo","loudness","acousticness","danceability","speechiness",
                    "energy","liveness","instrumentalness","key","mode"]
         sc={}
         for f in getfeature_cols:
             s = j.load(DATA_tra+"{0}.mdl".format(f))
             sc[f] = s
-        _self.feature_cols = getfeature_cols
-        _self.scaler = sc
+
+        self.feature_cols = getfeature_cols
+        self.scaler = sc
+        del s, sc
 
     # Scale track data
-    @st.experimental_memo(suppress_st_warning=True)
-    def scale(_self, df):
-        for f in _self.feature_cols:
-            df[f] = _self.scaler[f].transform(df[[f]])
+    def scale(self, df):
+        for f in self.feature_cols:
+            df[f] = self.scaler[f].transform(df[[f]])
         return df
 
     # Load the appropriate Seed data by query, sample: Tirador - Abra
-    @st.experimental_memo(suppress_st_warning=True)
-    def get_seed(_self, q=["0G3S4MVnjb8w30RZk04PI9"], col=["track_id"]):
+    def get_seed(self, q=["0G3S4MVnjb8w30RZk04PI9"], col=["track_id"]):
         # Query from available CSV files
         for i, file in enumerate(CSV):
             df=pd.read_csv(DATA_csv+file)
@@ -62,14 +60,14 @@ class SeedService():
             if seed_track_data.shape[0] > 0: break
 
         # Generate Seed
-        _self.seed = Seed(seed_track_data.track_id)
-        _self.seed.data = seed_track_data
-        _self.seed.feature_cols = _self.feature_cols
+        self.seed = Seed(seed_track_data.track_id)
+        self.seed.data = seed_track_data
+        self.seed.feature_cols = self.feature_cols
 
         # Scale data if main artist CSV file:
         if i == 0:
-            _self.seed.data = _self.scale(_self.seed.data)
-            _self.seed.data = _self.classifier.predict(_self.seed)
+            self.seed.data = self.scale(self.seed.data)
+            self.seed.data = self.classifier.predict(self.seed)
 
         del seed_track_data, df
 

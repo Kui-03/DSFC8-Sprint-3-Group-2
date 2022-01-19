@@ -14,9 +14,6 @@ class Recommender():
     # Initialize
     def __init__(self, csv):
         self.load_data(csv)
-        st.experimental_memo.clear()
-        pass
 
-    @st.experimental_memo(suppress_st_warning=True)
-    def load_data(_self, csv):
-        _self.tracks = pd.read_csv(csv)
+    def load_data(self, csv):
+        self.tracks = pd.read_csv(csv)

@@ -38,15 +38,12 @@ class Recommender_Page():
         st.markdown("## Select Track")
 
     # Display Recommendation Info
-    #@st.cache(suppress_st_warning=True)#@st.experimental_singleton(suppress_st_warning=True)
-    @st.experimental_singleton(suppress_st_warning=True)
     def display_recom_info(_self, df):
         seed_service = SeedService()
 
-        data = df.copy()
+        #data = df.copy()
         st.markdown("# Results")
-        ##st.write(df)
-        
+
         # 1. Display Potential Colaborators
         artists = df.artist_name.value_counts()
         artists.columns=["count"]
@@ -56,9 +53,9 @@ class Recommender_Page():
 
         # Get Artist Images
         art_df = pd.read_csv(DATA_csv+ART[1])
-        art_df = art_df[art_df.track_id.isin(data.track_id.tolist())]
+        art_df = art_df[art_df.track_id.isin(df.track_id.tolist())]
         img = []
-        nlist = [data[data.artist_name == i].head(1).track_id.squeeze() for i in artists.index.tolist()]#data.track_id.tolist()
+        nlist = [df[df.artist_name == i].head(1).track_id.squeeze() for i in artists.index.tolist()]#data.track_id.tolist()
         for track_id in nlist:
             i = art_df[art_df.track_id == track_id].head(1).image.squeeze()
             if type(i) == str: img.append(i)
@@ -67,6 +64,9 @@ class Recommender_Page():
         st.image(img, width=90)
         st.markdown(" - A generated list of artists may be possible collaborators, as well as a resource for experimenting with their popular music styles while creating new tracks.")
 
+        # clear vars
+        del artists, art_df, img, nlist
+        
         # 2. Genres to Explore
         st.markdown("### Explore new Genres!")
         genres_df = df.predicted_genre.value_counts().to_frame().T
@@ -87,13 +87,16 @@ class Recommender_Page():
         st.markdown(" - The Artist can explore the following genres, which closely suits their style in writing new songs!")
         st.markdown(" - The recommender generated a list of genres closest to the seed track, obtained from the top 200 charts.")
         
+        # clear vars
+        del genres_df, fig, ax
+        
         # 4. Designing New Beats
         st.markdown("### Design new Beats!")
         
         # Query raw values
         raw_df = pd.read_csv(DATA_csv+RAW[0])
         raw_df.drop_duplicates("track_name", inplace=True)
-        raw_df = raw_df[raw_df.track_id.isin(data.track_id.tolist())]
+        raw_df = raw_df[raw_df.track_id.isin(df.track_id.tolist())]
 
         # Plot Raw Stats
         nplots = len(seed_service.feature_cols)
@@ -118,14 +121,13 @@ class Recommender_Page():
         st.markdown(" - When producing a new track, the following audio features like *tempo* can provide ideas as a baseline for beats design.")
         st.markdown(" - These data were extracted from the top recommendation results.")
         st.markdown("### Recommender Top Tracks: ")
-        st.write(data.drop("track_id", axis=1).reset_index(drop=True))
+        st.write(df.drop("track_id", axis=1).reset_index(drop=True))
 
-        del data, df, raw_df, img, fig, ax, axs, raw_df, genres_df
+        del df, raw_df, fig, axs
 
 
     # Display Track Info
-    @st.experimental_memo(suppress_st_warning=True)
-    def display_track_info(_self, track_id):
+    def display_track_info(self, track_id):
         seed_service = SeedService()
         seed_service.get_seed([track_id])
         data = seed_service.seed.data
@@ -136,7 +138,7 @@ class Recommender_Page():
 
         # Print track info
         st.markdown("#### Track information")
-        art_df = _self.load_csv(mode="art")
+        art_df = self.load_csv(mode="art")
         art_df = art_df[art_df.track_id == track_id]
         img = art_df.head(1).image.squeeze()
         st.image(img, width=300)
@@ -157,13 +159,11 @@ class Recommender_Page():
         ax = sns.barplot(data=stats)
         st.pyplot(fig)
 
-        del data, seed_service, statcols, stats, genre, fig, ax
-        st.experimental_memo.clear()
+        del data, seed_service, statcols, stats, genre, fig, ax, art_df, img
 
 
         
-    #@st.cache(suppress_st_warning=True)
-    @st.experimental_singleton(suppress_st_warning=True)
+    # @st.cache(suppress_st_warning=True)
     def generate_by_track_id(_self, track_id, items=20, method = "cosine_dist"):
         # Create SeedService
         seed_service = SeedService()
@@ -175,9 +175,11 @@ class Recommender_Page():
         
         # Generate recommendations
         recom_service.generate(seed_service.seed, method, items)
+
+        del seed_service
         return recom_service
 
-    @st.experimental_memo(suppress_st_warning=True)
+    @st.cache(allow_output_mutation=True)
     def load_csv(_self, mode="all"):
         if mode == "all":
             df = pd.concat((pd.read_csv(DATA_csv+i).sort_values("artist_name") for i in CSV))
@@ -229,6 +231,7 @@ class Recommender_Page():
             status_msg = "Generating recommendations for {0} - {1}..".format(track_name, artist_name)
             st.text(status_msg)
             recom_df = self.generate_by_track_id(track_id, items, method).recommendations
+
             # Display results
             self.display_recom_info(recom_df)
 
@@ -239,9 +242,7 @@ class Recommender_Page():
             st.markdown("### Who do you think should make a comeback next?")
 
             #st.balloons()
-
-        st.experimental_memo.clear()
-        st.experimental_singleton.clear()
+            del recom_df
 
         del df
         return
