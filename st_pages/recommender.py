@@ -29,66 +29,6 @@ class Recommender_Page():
     def __init__(self):
         self.start()
 
-    #st.cache(suppress_st_warning=True)
-    def start(self):
-        # Display Intro
-        self.display_intro()
-
-        # Load data
-        df = pd.concat((pd.read_csv(DATA_csv+i).sort_values("artist_name") for i in CSV))
-        df.drop_duplicates(["track_name"], inplace=True)
-        # Remove duplicate artist: Abra
-        #df = df[df.artist_id != "5mNum7eUoqWS6NBo91NYHP"] 
-        # Remove other columns
-        df = df.drop(["playlist_id", "playlist_name"], axis=1)
-
-        # ======================== #
-        # Create Handlers
-
-        # Get artist_name
-        df_artist = df.drop_duplicates(subset = "artist_name")[["artist_name", "artist_id"]]
-        artist_name = st.selectbox("Select Artist: ", df_artist, key="artist_name")
-        
-        # Get track_name
-        df_tracks = df[df.artist_name == artist_name][["track_name", "track_id"]]
-        track_name = st.selectbox("Select Track: ", df_tracks, index=0, key="track_name")
-
-        # Query track_id
-        track_id = df[(df.artist_name == artist_name) & (df.track_name == track_name)].track_id.squeeze()
-        
-        # ======================== #
-
-        # Display track info
-        self.display_track_info(track_id)
-
-        # Item count
-        items = st.slider("Select no. of items", 1, 100, key="items", value=10)
-        # Method
-        method = st.radio("Select metric:", ["cosine_dist", "manhattan_dist", "euclidean_dist"], key="method")
-
-        # Obtain recommendations
-        status_msg = ""
-        if st.button("Submit"):
-            # Clear cache
-            self.display_recom_info.clear()
-            self.generate_by_track_id.clear()
-            
-            st.experimental_singleton.clear()
-            status_msg = "Generating recommendations for {0} - {1}..".format(track_name, artist_name)
-            st.text(status_msg)
-            recom_df = self.generate_by_track_id(track_id, items, method).recommendations
-            # Display results
-            self.display_recom_info(recom_df)
-
-            # Outro message
-            st.markdown("# So, what do you think? \n### Can **{0}** make a comeback?".format(artist_name))
-            st.markdown(" - Try increasing the number of items for better results!")
-            st.markdown(" - Different distance metrics also yield different outcomes!")
-            st.markdown("### Who do you think should make a comeback next?")
-
-        del df, df_artist
-        return
-
     # Intro txt
     def display_intro(self):
         st.title('Recommender Engine')
@@ -229,3 +169,62 @@ class Recommender_Page():
         # Generate recommendations
         recom_service.generate(seed_service.seed, method, items)
         return recom_service
+
+    def start(self):
+        # Display Intro
+        self.display_intro()
+
+        # Load data
+        df = pd.concat((pd.read_csv(DATA_csv+i).sort_values("artist_name") for i in CSV))
+        df.drop_duplicates(["track_name"], inplace=True)
+        # Remove duplicate artist: Abra
+        #df = df[df.artist_id != "5mNum7eUoqWS6NBo91NYHP"] 
+        # Remove other columns
+        df = df.drop(["playlist_id", "playlist_name"], axis=1)
+
+        # ======================== #
+        # Create Handlers
+
+        # Get artist_name
+        df_artist = df.drop_duplicates(subset = "artist_name")[["artist_name", "artist_id"]]
+        artist_name = st.selectbox("Select Artist: ", df_artist, key="artist_name")
+        
+        # Get track_name
+        df_tracks = df[df.artist_name == artist_name][["track_name", "track_id"]]
+        track_name = st.selectbox("Select Track: ", df_tracks, index=0, key="track_name")
+
+        # Query track_id
+        track_id = df[(df.artist_name == artist_name) & (df.track_name == track_name)].track_id.squeeze()
+        
+        # ======================== #
+
+        # Display track info
+        self.display_track_info(track_id)
+
+        # Item count
+        items = st.slider("Select no. of items", 1, 100, key="items", value=10)
+        # Method
+        method = st.radio("Select metric:", ["cosine_dist", "manhattan_dist", "euclidean_dist"], key="method")
+
+        # Obtain recommendations
+        status_msg = ""
+        if st.button("Submit"):
+            # Clear cache
+            self.display_recom_info.clear()
+            self.generate_by_track_id.clear()
+            
+            st.experimental_singleton.clear()
+            status_msg = "Generating recommendations for {0} - {1}..".format(track_name, artist_name)
+            st.text(status_msg)
+            recom_df = self.generate_by_track_id(track_id, items, method).recommendations
+            # Display results
+            self.display_recom_info(recom_df)
+
+            # Outro message
+            st.markdown("# So, what do you think? \n### Can **{0}** make a comeback?".format(artist_name))
+            st.markdown(" - Try increasing the number of items for better results!")
+            st.markdown(" - Different distance metrics also yield different outcomes!")
+            st.markdown("### Who do you think should make a comeback next?")
+
+        del df, df_artist
+        return
