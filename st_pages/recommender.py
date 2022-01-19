@@ -210,7 +210,7 @@ class Recommender_Page():
         status_msg = ""
         if st.button("Submit"):
             # Clear cache
-            self.display_recom_info.clear()
+            #self.display_recom_info.clear()
             self.generate_by_track_id.clear()
             
             st.experimental_singleton.clear()
