@@ -209,9 +209,11 @@ class Recommender_Page():
         # Obtain recommendations
         status_msg = ""
         if st.button("Submit"):
+            
             # Clear cache
             #self.display_recom_info.clear()
-            self.generate_by_track_id.clear()
+            #self.generate_by_track_id.clear()
+            st.experimental_singleton.clear()
             
             st.experimental_singleton.clear()
             status_msg = "Generating recommendations for {0} - {1}..".format(track_name, artist_name)
@@ -225,6 +227,8 @@ class Recommender_Page():
             st.markdown(" - Try increasing the number of items for better results!")
             st.markdown(" - Different distance metrics also yield different outcomes!")
             st.markdown("### Who do you think should make a comeback next?")
+
+            st.balloons()
 
         del df, df_artist
         return
