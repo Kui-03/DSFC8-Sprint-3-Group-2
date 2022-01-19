@@ -9,6 +9,7 @@ from PIL import Image
 
 import plotly.express as px
 
+st.cache
 def display():
     st.header("Time Series Analysis and Forecasting")
 

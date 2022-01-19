@@ -38,6 +38,7 @@ class Recommender_Page():
         st.markdown("## Select Track")
 
     # Display Recommendation Info
+    #@st.cache(suppress_st_warning=True)#@st.experimental_singleton(suppress_st_warning=True)
     @st.experimental_singleton(suppress_st_warning=True)
     def display_recom_info(_self, df):
         seed_service = SeedService()
@@ -119,15 +120,15 @@ class Recommender_Page():
         st.markdown("### Recommender Top Tracks: ")
         st.write(data.drop("track_id", axis=1).reset_index(drop=True))
 
-        del data, df, raw_df
+        del data, df, raw_df, img, fig, ax, axs, raw_df, genres_df
 
 
     # Display Track Info
+    @st.experimental_memo(suppress_st_warning=True)
     def display_track_info(_self, track_id):
         seed_service = SeedService()
         seed_service.get_seed([track_id])
         data = seed_service.seed.data
-        ##st.write(data)
         
         statcols = [i for i in data.columns.tolist() if "_prob" in i]
         stats = data[statcols].drop(["all_genre_prob","predicted_genre_prob"], axis=1)
@@ -135,7 +136,7 @@ class Recommender_Page():
 
         # Print track info
         st.markdown("#### Track information")
-        art_df = pd.read_csv(DATA_csv+ART[0])
+        art_df = _self.load_csv(mode="art")
         art_df = art_df[art_df.track_id == track_id]
         img = art_df.head(1).image.squeeze()
         st.image(img, width=300)
@@ -155,7 +156,13 @@ class Recommender_Page():
         plt.title("Genre Probabilities for \"{0}\"".format(data.track_name.squeeze()),size=15)
         ax = sns.barplot(data=stats)
         st.pyplot(fig)
+
+        del data, seed_service, statcols, stats, genre, fig, ax
+        st.experimental_memo.clear()
+
+
         
+    #@st.cache(suppress_st_warning=True)
     @st.experimental_singleton(suppress_st_warning=True)
     def generate_by_track_id(_self, track_id, items=20, method = "cosine_dist"):
         # Create SeedService
@@ -170,17 +177,26 @@ class Recommender_Page():
         recom_service.generate(seed_service.seed, method, items)
         return recom_service
 
+    @st.experimental_memo(suppress_st_warning=True)
+    def load_csv(_self, mode="all"):
+        if mode == "all":
+            df = pd.concat((pd.read_csv(DATA_csv+i).sort_values("artist_name") for i in CSV))
+            df.drop_duplicates(["track_name"], inplace=True)
+            # Remove duplicate artist: Abra
+            # df = df[df.artist_id != "5mNum7eUoqWS6NBo91NYHP"] 
+            # Remove other columns
+            df = df.drop(["playlist_id", "playlist_name"], axis=1)
+        elif mode == "art":
+            df = pd.read_csv(DATA_csv+ART[0])
+
+        return df
+
     def start(self):
         # Display Intro
         self.display_intro()
 
         # Load data
-        df = pd.concat((pd.read_csv(DATA_csv+i).sort_values("artist_name") for i in CSV))
-        df.drop_duplicates(["track_name"], inplace=True)
-        # Remove duplicate artist: Abra
-        #df = df[df.artist_id != "5mNum7eUoqWS6NBo91NYHP"] 
-        # Remove other columns
-        df = df.drop(["playlist_id", "playlist_name"], axis=1)
+        df = self.load_csv(mode="all")
 
         # ======================== #
         # Create Handlers
@@ -188,18 +204,19 @@ class Recommender_Page():
         # Get artist_name
         df_artist = df.drop_duplicates(subset = "artist_name")[["artist_name", "artist_id"]]
         artist_name = st.selectbox("Select Artist: ", df_artist, key="artist_name")
-        
+        del df_artist
+
         # Get track_name
         df_tracks = df[df.artist_name == artist_name][["track_name", "track_id"]]
         track_name = st.selectbox("Select Track: ", df_tracks, index=0, key="track_name")
+        del df_tracks
 
         # Query track_id
         track_id = df[(df.artist_name == artist_name) & (df.track_name == track_name)].track_id.squeeze()
-        
         # ======================== #
 
         # Display track info
-        self.display_track_info(track_id)
+        self.display_track_info(track_id)        
 
         # Item count
         items = st.slider("Select no. of items", 1, 100, key="items", value=10)
@@ -209,13 +226,6 @@ class Recommender_Page():
         # Obtain recommendations
         status_msg = ""
         if st.button("Submit"):
-            
-            # Clear cache
-            #self.display_recom_info.clear()
-            #self.generate_by_track_id.clear()
-            st.experimental_singleton.clear()
-            
-            st.experimental_singleton.clear()
             status_msg = "Generating recommendations for {0} - {1}..".format(track_name, artist_name)
             st.text(status_msg)
             recom_df = self.generate_by_track_id(track_id, items, method).recommendations
@@ -228,7 +238,10 @@ class Recommender_Page():
             st.markdown(" - Different distance metrics also yield different outcomes!")
             st.markdown("### Who do you think should make a comeback next?")
 
-            st.balloons()
+            #st.balloons()
 
-        del df, df_artist
+        st.experimental_memo.clear()
+        st.experimental_singleton.clear()
+
+        del df
         return
