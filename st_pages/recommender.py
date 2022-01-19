@@ -14,6 +14,7 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+
 import math 
 
 # Directory
@@ -26,9 +27,10 @@ ART = ["album_art.csv", "artist_art.csv"]
 
 class Recommender_Page():
     def __init__(self):
+        st.experimental_singleton.clear()
         self.start()
 
-    @st.cache
+    #st.cache(suppress_st_warning=True)
     def start(self):
         # Display Intro
         self.display_intro()
@@ -91,9 +93,9 @@ class Recommender_Page():
         st.markdown(" - Samples could be increased to gain better results.")
         st.markdown("## Select Track")
 
-    # @st.cache
     # Display Recommendation Info
-    def display_recom_info(self, df):
+    @st.experimental_singleton(suppress_st_warning=True)
+    def display_recom_info(_self, df):
         seed_service = SeedService()
 
         data = df.copy()
@@ -177,8 +179,7 @@ class Recommender_Page():
 
 
     # Display Track Info
-    # @st.cache
-    def display_track_info(self, track_id):
+    def display_track_info(_self, track_id):
         seed_service = SeedService()
         seed_service.get_seed([track_id])
         data = seed_service.seed.data
@@ -211,7 +212,6 @@ class Recommender_Page():
         ax = sns.barplot(data=stats)
         st.pyplot(fig)
         
-    # @st.cache
     def generate_by_track_id(self, track_id, items=20, method = "cosine_dist"):
         # Create SeedService
         seed_service = SeedService()
